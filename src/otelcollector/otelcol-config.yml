@@ -18,6 +18,9 @@ exporters:
     tls:
       insecure: true
   logging:
+    #verbosity: "detailed"
+    #sampling_initial: 5000
+    #sampling_thereafter: 5000
   prometheus:
     endpoint: "otelcol:9464"
     resource_to_telemetry_conversion:

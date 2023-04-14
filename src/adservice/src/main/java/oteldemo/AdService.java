@@ -56,6 +56,16 @@ public final class AdService {
           .counterBuilder("app.ads.ad_requests")
           .setDescription("Counts ad requests by request and response type")
           .build();
+  private static final LongCounter sinkCounter = meter
+      .counterBuilder("rpc.server.sink")
+      .setDescription("Counts sinktypes seen in a route")
+      .build();
+  private static final AttributeKey<String> serviceKey =
+      AttributeKey.stringKey("rpc.service");
+  private static final AttributeKey<String> methodKey =
+      AttributeKey.stringKey("rpc.method");
+  private static final AttributeKey<String> sinktypeKey =
+      AttributeKey.stringKey("sinktype");
 
   private static final AttributeKey<String> adRequestTypeKey =
       AttributeKey.stringKey("app.ads.ad_request_type");
@@ -213,8 +223,22 @@ public final class AdService {
 
   @WithSpan("getAdsByCategory")
   private Collection<Ad> getAdsByCategory(@SpanAttribute("app.ads.category") String category) {
+
+    // NB: This is not really a DB fetch, but in a real application it likely would be
+    // so I'm going to manually add a fake count of one.
+    sinkCounter.add(1, Attributes.of(
+        sinktypeKey, "SinkType.SQL_EXECUTE",
+        serviceKey, "oteldemo.AdService",
+        methodKey, "GetAds"
+    ));
+    Span.current().setAttribute("db.system", "mysql");
+    Span.current().setAttribute("db.name", "advertising");
+    Span.current().setAttribute("db.sql.table", "ads");
+    Span.current().setAttribute("net.peer.name", "mysql1.acme.com");
     Collection<Ad> ads = adsMap.get(category);
     Span.current().setAttribute("app.ads.count", ads.size());
+
+
     return ads;
   }
 

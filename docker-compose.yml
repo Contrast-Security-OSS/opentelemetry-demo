@@ -593,7 +593,8 @@ services:
     restart: unless-stopped
     ports:
       - "${JAEGER_SERVICE_PORT}"                    # Jaeger UI
-      - "4317"                           # OTLP gRPC default port
+      - "4317" # OTLP gRPC default port
+      - 16685:16685
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - METRICS_STORAGE_TYPE=prometheus
@@ -616,7 +617,7 @@ services:
 
   # OpenTelemetry Collector
   otelcol:
-    image: otel/opentelemetry-collector-contrib:0.75.0
+    image: otelcol-contrast:latest
     container_name: otel-col
     deploy:
       resources:
@@ -630,7 +631,7 @@ services:
     ports:
       - "4317"          # OTLP over gRPC receiver
       - "4318:4318"     # OTLP over HTTP receiver
-      - "9464"          # Prometheus exporter
+      - "9464:9464"          # Prometheus exporter
       - "8888"          # metrics endpoint
     depends_on:
       - jaeger

@@ -5,20 +5,21 @@ package main
 import (
 	"context"
 	"fmt"
+	pb "github.com/opentelemetry/opentelemetry-demo/src/productcatalogservice/genproto/oteldemo"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/metric/instrument"
+	"go.opentelemetry.io/otel/metric/instrument/syncint64"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"io/ioutil"
 	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
-
-	pb "github.com/opentelemetry/opentelemetry-demo/src/productcatalogservice/genproto/oteldemo"
-	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/contrib/instrumentation/runtime"
-	"go.opentelemetry.io/otel/metric/global"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -44,6 +45,7 @@ var (
 	catalog           []*pb.Product
 	resource          *sdkresource.Resource
 	initResourcesOnce sync.Once
+	actionCounter     syncint64.Counter
 )
 
 func init() {
@@ -78,7 +80,7 @@ func initTracerProvider() *sdktrace.TracerProvider {
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(initResource()),
-	)
+		sdktrace.WithSampler(sdktrace.AlwaysSample()))
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return tp
@@ -119,6 +121,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mycounter, err := mp.Meter("productcatalogservice").SyncInt64().Counter(
+		"rpc.server.sink",
+		instrument.WithUnit("1"),
+		instrument.WithDescription("Counts sinktypes seen in a route"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	actionCounter = mycounter
 
 	svc := &productCatalog{}
 	var port string
@@ -185,6 +197,18 @@ func (p *productCatalog) ListProducts(ctx context.Context, req *pb.Empty) (*pb.L
 	span.SetAttributes(
 		attribute.Int("app.products.count", len(catalog)),
 	)
+	actionCounter.Add(ctx, 1,
+		attribute.String("sinktype", "SinkType.SQL_EXECUTE"),
+		attribute.String("rpc.service", "oteldemo.ProductCatalogService"),
+		attribute.String("rpc.method", "ListProducts"),
+	)
+	span.SetAttributes(
+		attribute.String("db.system", "mysql"),
+		attribute.String("db.name", "astronomystore"),
+		attribute.String("db.sql.table", "product.catalog"),
+		attribute.String("db.operation", "SELECT"),
+		attribute.String("net.peer.name", "mysql1.acme.com"),
+	)
 	return &pb.ListProductsResponse{Products: catalog}, nil
 }
 
@@ -202,6 +226,18 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 		return nil, status.Errorf(codes.Internal, msg)
 	}
 
+	actionCounter.Add(ctx, 1,
+		attribute.String("sinktype", "SinkType.SQL_EXECUTE"),
+		attribute.String("rpc.service", "oteldemo.ProductCatalogService"),
+		attribute.String("rpc.method", "GetProduct"),
+	)
+	span.SetAttributes(
+		attribute.String("db.system", "mysql"),
+		attribute.String("db.name", "astronomystore"),
+		attribute.String("db.sql.table", "product.catalog"),
+		attribute.String("db.operation", "SELECT"),
+		attribute.String("net.peer.name", "mysql2.acme.com"),
+	)
 	var found *pb.Product
 	for _, product := range catalog {
 		if req.Id == product.Id {
@@ -228,6 +264,19 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 func (p *productCatalog) SearchProducts(ctx context.Context, req *pb.SearchProductsRequest) (*pb.SearchProductsResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
+	actionCounter.Add(ctx, 1,
+		attribute.String("sinktype", "SinkType.SQL_EXECUTE"),
+		attribute.String("rpc.service", "oteldemo.ProductCatalogService"),
+		attribute.String("rpc.method", "SearchProducts"),
+	)
+
+	span.SetAttributes(
+		attribute.String("db.system", "mysql"),
+		attribute.String("db.name", "astronomystore"),
+		attribute.String("db.sql.table", "product.catalog"),
+		attribute.String("db.operation", "SELECT"),
+		attribute.String("net.peer.name", "mysql1.oteldemo.org"),
+	)
 	var result []*pb.Product
 	for _, product := range catalog {
 		if strings.Contains(strings.ToLower(product.Name), strings.ToLower(req.Query)) ||
@@ -238,14 +287,26 @@ func (p *productCatalog) SearchProducts(ctx context.Context, req *pb.SearchProdu
 	span.SetAttributes(
 		attribute.Int("app.products_search.count", len(result)),
 	)
+
 	return &pb.SearchProductsResponse{Results: result}, nil
 }
 
 func (p *productCatalog) checkProductFailure(ctx context.Context, id string) bool {
+	span := trace.SpanFromContext(ctx)
 	if id != "OLJCESPC7Z" {
 		return false
 	}
 
+	actionCounter.Add(ctx, 1,
+		attribute.String("sinktype", "SinkType.FILE_OPEN_CREATE"),
+		attribute.String("rpc.service", "oteldemo.ProductCatalogService"),
+		attribute.String("rpc.method", "GetProduct"),
+	)
+
+	span.SetAttributes(
+		attribute.String("file.open.flags", "R"),
+		attribute.String("file.open.path", "product_catalog.json"),
+	)
 	conn, err := createClient(ctx, p.featureFlagSvcAddr)
 	if err != nil {
 		span := trace.SpanFromContext(ctx)
