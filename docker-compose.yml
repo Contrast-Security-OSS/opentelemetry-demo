@@ -617,7 +617,7 @@ services:
 
   # OpenTelemetry Collector
   otelcol:
-    image: otelcol-contrast:latest
+    image: ghcr.io/contrast-security-inc/otelcol-contrast-dev:latest
     container_name: otel-col
     deploy:
       resources:
