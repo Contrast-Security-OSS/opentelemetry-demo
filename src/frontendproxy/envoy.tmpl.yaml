@@ -40,6 +40,8 @@ static_resources:
                           route: { cluster: jaeger }
                         - match: { prefix: "/grafana" }
                           route: { cluster: grafana }
+                        - match: { prefix: "/obsdata" }
+                          route: { cluster: obsdata, prefix_rewrite: "/" }
                         - match: { prefix: "/" }
                           route: { cluster: frontend }
                 http_filters:
@@ -89,6 +91,18 @@ static_resources:
                     socket_address:
                       address: ${FEATURE_FLAG_SERVICE_HOST}
                       port_value: ${FEATURE_FLAG_SERVICE_PORT}
+    - name: obsdata
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: obsdata
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: ${OBSDATA_SERVICE_HOST}
+                      port_value: ${OBSDATA_SERVICE_PORT}
     - name: loadgen
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
