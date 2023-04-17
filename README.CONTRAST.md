@@ -39,17 +39,17 @@ started, and ready to accept requests.
 Here are the links for various components offered from the lab/demo
 environment.
 
-Webstore: <http://localhost:8080/>
-Grafana: <http://localhost:8080/grafana/>
-Feature Flags UI: <http://localhost:8080/feature/>
-Load Generator UI: <http://localhost:8080/loadgen/>
-Jaeger UI: <http://localhost:8080/jaeger/ui/>
+* Webstore: <http://localhost:8080/>
+* Grafana: <http://localhost:8080/grafana/>
+* Feature Flags UI: <http://localhost:8080/feature/>
+* Load Generator UI: <http://localhost:8080/loadgen/>
+* Jaeger UI: <http://localhost:8080/jaeger/ui/>
 
-Contrast ObsData (GraphiQl) Api: <http://localhost:8080/obsdata/graphiql?path=/obsdata/graphql>
-Contrast ObsData (REST) API: <http://localhost:8080/obsdata/>
+* Contrast ObsData (GraphiQl) Api: <http://localhost:8080/obsdata/graphiql?path=/obsdata/graphql>
+* Contrast ObsData (REST) API: <http://localhost:8080/obsdata/>
 
 # Appendix
 
-[Working with ghcr.io](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-[Obtain a classic github token](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-[Upstream OTEL Demo Documentation](https://opentelemetry.io/docs/demo/)
+* [Working with ghcr.io](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+* [Obtain a classic github token](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+* [Upstream OTEL Demo Documentation](https://opentelemetry.io/docs/demo/)
