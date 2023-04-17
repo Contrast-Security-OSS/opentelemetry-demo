@@ -40,7 +40,7 @@ static_resources:
                           route: { cluster: jaeger }
                         - match: { prefix: "/grafana" }
                           route: { cluster: grafana }
-                        - match: { prefix: "/obsdata" }
+                        - match: { prefix: "/obsdata/" }
                           route: { cluster: obsdata, prefix_rewrite: "/" }
                         - match: { prefix: "/" }
                           route: { cluster: frontend }

@@ -596,7 +596,7 @@ services:
     ports:
       - "${JAEGER_SERVICE_PORT}"                    # Jaeger UI
       - "4317" # OTLP gRPC default port
-      - 16685:16685
+      - "${JAEGER_GRPC_SERVICE_PORT}:${JAEGER_GRPC_SERVICE_PORT}"  # grpc api for queries
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - METRICS_STORAGE_TYPE=prometheus
@@ -626,14 +626,14 @@ services:
         limits:
           memory: 125M
     restart: unless-stopped
-    command: ["--spring.config.location=/config/application.properties"]
+    command: ["--spring.config.location=/config/application.properties", "--debug"]
     volumes:
       - ./src/obsdata-service/application.properties:/config/application.properties
     ports:
       - "8080" #service listening port 
     environment:
       - PROMETHEUS_ADDR
-      - JAEGER_SERVICE_PORT
+      - JAEGER_GRPC_SERVICE_PORT
       - JAEGER_SERVICE_HOST
     depends_on:
       - jaeger
