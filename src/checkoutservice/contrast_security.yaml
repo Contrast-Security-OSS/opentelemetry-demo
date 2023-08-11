@@ -1,0 +1,24 @@
+api:
+  url: https://alpha.contrastsecurity.com/Contrast
+  # api_key:
+  # service_key:
+  # user_name:
+  request_audit:
+    enable: false
+    path: "./req_audit"
+    requests: true
+    responses: true
+    clean: true
+assess:
+  enable: true
+protect:
+  enable: false
+agent:
+  logger:
+    level: WARN
+    stdout: true
+    path: "./agent.log"
+application:
+  metadata: testField="testestest"
+  # name: markp-go-oteldemo-checkout
+  tags: oteldemo
