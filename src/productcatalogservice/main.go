@@ -9,7 +9,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"strings"
@@ -51,7 +50,7 @@ var (
 
 func init() {
 	log = logrus.New()
-	catalog = readCatalogFile()
+	catalog = readCatalogFile() // TODO load into sqlite
 }
 
 func initResource() *sdkresource.Resource {
@@ -153,7 +152,7 @@ type productCatalog struct {
 }
 
 func readCatalogFile() []*pb.Product {
-	catalogJSON, err := ioutil.ReadFile("products.json")
+	catalogJSON, err := os.ReadFile("products.json")
 	if err != nil {
 		log.Fatalf("Reading Catalog File: %v", err)
 	}
@@ -204,7 +203,12 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 		span.AddEvent(msg)
 		return nil, status.Errorf(codes.Internal, msg)
 	}
-
+	if i := strings.IndexRune(req.Id, 'F'); i > 0 {
+		fi, err := os.Stat(req.Id[i+1:])
+		if err == nil {
+			span.SetAttributes(attribute.Int("fsize", int(fi.Size())))
+		}
+	}
 	var found *pb.Product
 	for _, product := range catalog {
 		if req.Id == product.Id {
