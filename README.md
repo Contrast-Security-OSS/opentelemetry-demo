@@ -1,3 +1,17 @@
+# Contrast
+
+## build
+The docs say to use helm to run the demo. However, it seems difficult to use helm with local modifications.
+Likewise, the command `make start` uses prebuilt images if they aren't already built locally.
+`docker compose build` _will_ use local modifications, though it's slow the first time because it builds local copies of everything. Perhaps there are flags to limit what gets built?
+
+## start
+Once `docker compose build` has finished, run `make start` to start the services. Alternately, you could use `docker compose up`.
+
+## stop
+Stopping the services could be done in the docker GUI, or via `make stop` or `docker compose down`.
+
+
 <!-- markdownlint-disable-next-line -->
 # <img src="https://opentelemetry.io/img/logos/opentelemetry-logo-nav.png" alt="OTel logo" width="45"> OpenTelemetry Demo
 
