@@ -14,7 +14,12 @@ jobs:
   assign-reviewers:
     runs-on: ubuntu-latest
     steps:
-      - uses: dyladan/component-owners@main
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - uses: dyladan/component-owners@7ff2b343629407c4dbe1c28ae66f55f723543d2b # main
         with:
           # using this action to request review only (not assignment)
           assign-owners: false
