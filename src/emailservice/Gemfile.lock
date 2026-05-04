@@ -1,9 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    date (3.3.3)
+    date (3.5.1)
     google-protobuf (3.23.4-aarch64-linux)
     google-protobuf (3.23.4-arm64-darwin)
+    google-protobuf (3.23.4-x86_64-linux)
     googleapis-common-protos-types (1.7.0)
       google-protobuf (~> 3.14)
     mail (2.8.1)
@@ -14,12 +15,12 @@ GEM
     mini_mime (1.1.2)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
-    net-imap (0.3.6)
+    net-imap (0.4.24)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
-    net-protocol (0.2.1)
+    net-protocol (0.2.2)
       timeout
     net-smtp (0.3.3)
       net-protocol
@@ -228,12 +229,13 @@ GEM
       rack-protection (= 3.0.6)
       tilt (~> 2.0)
     tilt (2.2.0)
-    timeout (0.4.0)
+    timeout (0.6.1)
 
 PLATFORMS
   aarch64-linux
   arm64-darwin-21
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   net-smtp (~> 0.3)
