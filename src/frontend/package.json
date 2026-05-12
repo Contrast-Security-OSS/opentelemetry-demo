@@ -41,7 +41,7 @@
     "react-query": "3.39.3",
     "sharp": "0.30.7",
     "styled-components": "5.3.5",
-    "ts-proto": "1.118.0",
+    "ts-proto": "1.181.2",
     "uuid": "8.3.2"
   },
   "devDependencies": {
