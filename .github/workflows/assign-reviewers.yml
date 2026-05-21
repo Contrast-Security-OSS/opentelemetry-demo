@@ -20,6 +20,11 @@ jobs:
     if: ${{ !github.event.repository.fork }}
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
       - uses: dyladan/component-owners@7ff2b343629407c4dbe1c28ae66f55f723543d2b  # v0.2.0
         with:
           # using this action to request review only (not assignment)
