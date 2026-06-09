@@ -37,7 +37,11 @@ updates:
       time: "03:10"
   - package-ecosystem: "pip"
     directories:
-      - "/src/**/*"
+      - /src/**/*
+      - /src/llm
+      - /src/load-generator
+      - /src/product-reviews
+      - /src/recommendation
     groups:
       pip-production-dependencies:
         dependency-type: "production"
@@ -67,9 +71,12 @@ updates:
       time: "03:25"
   - package-ecosystem: "npm"
     directories:
-      - "/"
-      - "/src/frontend/*"
-      - "/src/payment/*"
+      - /
+      - /src/frontend/*
+      - /src/payment/*
+      - /src/frontend
+      - /src/payment
+      - /src/react-native-app
     groups:
       npm-production-dependencies:
         dependency-type: "production"
