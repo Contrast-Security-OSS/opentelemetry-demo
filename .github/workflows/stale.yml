@@ -18,6 +18,11 @@ jobs:
       pull-requests: write  # for actions/stale to close stale PRs
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        with:
+          egress-policy: audit
+
       - uses: actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f  # v10.2.0
         with:
           stale-pr-message: 'This PR was marked stale due to lack of activity. It will be closed in 7 days.'
